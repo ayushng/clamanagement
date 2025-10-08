@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import logging
-from dotenv import load_dotenv
 import os
 import random
 import string
@@ -10,6 +9,7 @@ import traceback
 import asyncio
 from typing import Optional
 from datetime import datetime
+
 
 # ================= CONFIG =================
 import os
