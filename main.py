@@ -1,14 +1,9 @@
-import discord                        # ✅ needed for Intents
-from discord.ext import commands
-from discord import app_commands
-import logging
 import os
-import random
-import string
-import traceback
 import asyncio
-from typing import Optional
-from datetime import datetime
+import logging
+import discord
+from discord.ext import commands
+from aiohttp import web
 
 # ================= CONFIG =================
 
@@ -20,25 +15,49 @@ if not token:
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('bot.log'),
+        logging.FileHandler("bot.log"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Set up bot with required intents
+# Discord intents
 intents = discord.Intents.default()
-intents.message_content = True  # required for commands/messages
+intents.message_content = True
 
+# Initialize bot
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
-    logger.info(f"Logged in as {bot.user}")
+    logger.info(f"✅ Logged in as {bot.user}")
 
-bot.run(token)
+# --- Dummy web server for Render ---
+async def handle_root(request):
+    return web.Response(text="Bot is alive!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle_root)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.getenv("PORT", 8000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info(f"🌐 Web server started on port {port}")
+
+# --- Main entry ---
+async def main():
+    await start_web_server()
+    await bot.start(token)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("🛑 Bot stopped manually")
 
 
 
