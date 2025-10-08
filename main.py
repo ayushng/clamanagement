@@ -1,4 +1,4 @@
-import discord
+import discord                        # ✅ needed for Intents
 from discord.ext import commands
 from discord import app_commands
 import logging
@@ -10,16 +10,10 @@ import asyncio
 from typing import Optional
 from datetime import datetime
 
-
 # ================= CONFIG =================
-import os
-import logging
-from discord.ext import commands
 
 # Get token from environment variable
 token = os.getenv("DISCORD_TOKEN")
-
-# Optional: check if token exists
 if not token:
     raise ValueError("❌ DISCORD_TOKEN environment variable not set!")
 
@@ -34,14 +28,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Set up bot
-bot = commands.Bot(command_prefix="!")
+# Set up bot with required intents
+intents = discord.Intents.default()
+intents.message_content = True  # required for commands/messages
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
     logger.info(f"Logged in as {bot.user}")
 
 bot.run(token)
+
 
 
 GUILD_ID = 1382693923104751736
